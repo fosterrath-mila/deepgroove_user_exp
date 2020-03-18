@@ -1,0 +1,6 @@
+syntax: glob
+
+env37/*
+.eggs/*
+deepgroove_web_user_experiment.egg-info/*
+tags
