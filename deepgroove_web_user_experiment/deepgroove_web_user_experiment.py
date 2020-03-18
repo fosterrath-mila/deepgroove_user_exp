@@ -22,4 +22,5 @@ def trial():
     """
     Submit and experiment to the user.
     """
-    return "Hello World"
+    return ("Placeholder for one user iteration.\n"
+            "Hello %s" % session['participant_name'])
