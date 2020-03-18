@@ -27,15 +27,16 @@ This is the code base for a WEB interface to conduct user experiments for the Mi
 * Documentation: https://deepgroove-web-user-experiment.readthedocs.io.
 
 
+QuickStart
+----------
+
+.. code-block:: bash
+
+   export FLASK_APP=hello.py
+   export FLASK_DEBUG=1
+   flask run
+
 Features
 --------
 
 * TODO
-
-Credits
--------
-
-This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
-
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
