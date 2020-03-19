@@ -8,6 +8,11 @@ basicConfig(level=DEBUG)
 APP = Flask(__name__)
 APP.secret_key = b"1qaz2wsx42!000077777"
 
+# TODO : State machine
+# TODO : Renomer la page
+# TODO : Table de ratings
+# TODO : Interface for call to training
+# TODO : Use a process pool with shared object for training.
 
 @APP.route("/", methods=['GET', 'POST'])
 def register():
