@@ -32,7 +32,7 @@ QuickStart
 
 .. code-block:: bash
 
-   export FLASK_APP=deepgroove_web_user_experiment.deepgroove_web_user_experimen
+   export FLASK_APP=deepgroove_web_user_experiment.deepgroove_web_user_experiment
    export FLASK_DEBUG=1
    flask run
 
