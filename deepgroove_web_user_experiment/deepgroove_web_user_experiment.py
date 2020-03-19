@@ -37,6 +37,7 @@ def trial():
     """
     if request.method == 'POST':
         rating = request.form['action']
+        APP.logger.debug("Form is %s", request.form)
         clip_id = request.form['id']
         APP.logger.debug("user said %s of %s", rating, clip_id)
         session['ratings_table'][rating] = clip_id
