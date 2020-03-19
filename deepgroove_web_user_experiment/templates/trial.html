@@ -1,0 +1,28 @@
+<html>
+    <head>
+        <title>Sample evaluation</title>
+    </head>
+    <body>
+        <h1>DeepGroove user experiment</h1>
+        <div>
+            <p>User name : "{{ session['participant_name'] }}"</p>
+            <p>
+                Please listen to the audio clip below and give your appreciation
+                with one of the two buttons.
+            </p>
+            <audio controls>
+                <source src="{{ session['clip_path'] }}" type="audio/wav">
+                Your browser does not support the audio element.
+                Please use Firefox or Chrome.
+            </audio>
+        </div>
+        <form id="vote_form" action="{{ url_for('trial') }}" method="post">
+            <div class="panel-body">
+                <input type ="submit" name="action" value="like">
+            </div>
+            <div class="panel-body">
+                <input type ="submit" name="action" value="dislike">
+            </div>
+         </form>
+    </body>
+</html>
