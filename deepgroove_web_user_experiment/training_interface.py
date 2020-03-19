@@ -7,6 +7,8 @@ from logging import getLogger
 from pathlib import Path
 from uuid import uuid4
 
+from . import APP
+
 def generate_clip(out_file_path):
     """
     Create audio and fill in audio specified WAV file.
@@ -15,16 +17,15 @@ def generate_clip(out_file_path):
     :returns: The identifier of the clip.
     :rtype: str
     """
-    logger = getLogger(__name__)
     # As a placeholder we are only now reading a static file and returning a
     # bytestream..
-    dumb_audio_path = Path('static/trumpet-1.wav')
-    logger.warning("Using stub data for audio generation from file %s",
-                   dumb_audio_path)
+    dumb_audio_path = Path('./deepgroove_web_user_experiment/static/trumpet-1.wav')
+    APP.logger.warning("Using stub data for audio generation from file %s",
+                       dumb_audio_path.absolute())
     wav_data = dumb_audio_path.read_bytes()
 
     out_file_path = Path(out_file_path)
-    logger.debug("Placing audio data into file %s", out_file_path)
+    APP.logger.debug("Placing audio data into file %s", out_file_path)
     out_file_path.write_bytes(wav_data)
 
     # TODO : Create WAV file for the generated audio having these parameters:
@@ -43,6 +44,5 @@ def run_train(ratings):
     """
     This launches the training algorith with a (possibly) updated ratings table.
     """
-    logger = getLogger(__name__)
-    logger.debug("processing user submitted ratings : %s", ratings)
+    APP.logger.debug("processing user submitted ratings : %s", ratings)
     # TODO : Use a process pool with shared object for training.
