@@ -1,7 +1,6 @@
 """Main WEB interface definition module."""
 
 from tempfile import NamedTemporaryFile
-from logging import getLogger
 from pathlib import Path
 
 from flask import render_template, request, session, redirect, url_for
@@ -9,7 +8,7 @@ from flask import render_template, request, session, redirect, url_for
 from .training_interface import run_train, generate_clip
 from . import APP
 
-# TODO : State machine, implement steps
+TOTAL_TRIALS = 200
 
 @APP.route("/", methods=['GET', 'POST'])
 def register():
@@ -18,12 +17,19 @@ def register():
     When POSTed, redirects to the first trials.
     """
     if request.method == 'POST':
+        session.permanent = True
         session['participant_name'] = request.form['participant_name']
-        APP.logger.debug("participant name %s", session['participant_name'])
+        APP.logger.info("participant name %s", session['participant_name'])
+        APP.logger.info("Resetting ratings table")
         session['ratings_table'] = {}
         return redirect(url_for('trial'))
 
-    return render_template('landing.html')
+    if 'participant_name' not in session:
+        APP.logger.info("Creating initial landing page")
+        return render_template('landing.html')
+
+    APP.logger.info("User already has registered, so we direct him to his trials")
+    return redirect(url_for('trial'))
 
 
 @APP.route("/trial", methods=['GET', 'POST'])
@@ -40,8 +46,9 @@ def trial():
         APP.logger.debug("Form is %s", request.form)
         clip_id = request.form['id']
         APP.logger.debug("user said %s of %s", rating, clip_id)
-        session['ratings_table'][rating] = clip_id
+        session['ratings_table'][clip_id] = rating
         run_train(session['ratings_table'])
+        session.modified = True
         return redirect(url_for('trial'))
 
     prefix = Path(APP.static_folder)
@@ -50,5 +57,11 @@ def trial():
     clip_path = Path(clip_f.name)
     APP.logger.debug("clip path is %s", clip_path)
     clip_id = generate_clip(clip_path)
+    APP.logger.debug("ratings table is now %s", session['ratings_table'])
+    step = "%s / %s" % (len(session['ratings_table'].keys()), TOTAL_TRIALS)
+    APP.logger.debug("step is %s", step)
     clip_url = url_for('static', filename=clip_path.name)
-    return render_template('trial.html', clip_url=clip_url, clip_id=clip_id)
+    return render_template('trial.html',
+                           clip_id=clip_id,
+                           clip_url=clip_url,
+                           step=step)
