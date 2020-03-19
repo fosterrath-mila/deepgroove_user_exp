@@ -12,17 +12,17 @@
                 with one of the two buttons.
             </p>
             <audio controls>
-                <source src="{{ session['clip_path'] }}" type="audio/wav">
+                <source src="{{ clip_url }}" type="audio/wav">
                 Your browser does not support the audio element.
                 Please use Firefox or Chrome.
             </audio>
         </div>
-        <form id="vote_form" action="{{ url_for('trial') }}" method="post">
+        <form id="{{ clip_id }}" action="{{ url_for('trial') }}" method="post">
             <div class="panel-body">
-                <input type ="submit" name="action" value="like">
+                <input type ="submit" name="action" value="good">
             </div>
             <div class="panel-body">
-                <input type ="submit" name="action" value="dislike">
+                <input type ="submit" name="action" value="bad">
             </div>
          </form>
     </body>
