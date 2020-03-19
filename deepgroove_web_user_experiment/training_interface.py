@@ -15,3 +15,12 @@ def generate_clip(filename):
     # nb_channels = 1
     # bit_depth = 16
     out_file = Path(filename)
+
+
+def run_train(ratings):
+    """
+    This launches the training algorith with a (possibly) updated ratings table.
+    """
+    # TODO : Use a process pool with shared object for training.
+    pass
+

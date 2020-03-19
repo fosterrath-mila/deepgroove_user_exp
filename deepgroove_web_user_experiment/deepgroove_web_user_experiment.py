@@ -4,15 +4,14 @@ from flask import Flask, render_template, request, session, redirect, url_for
 from logging import getLogger, basicConfig, DEBUG
 from uuid import uuid4
 
+from training_interface import run_train, generate_clip
+
 basicConfig(level=DEBUG)
 
 APP = Flask(__name__)
 APP.secret_key = b"1qaz2wsx42!000077777"
 
-# TODO : State machine
-# TODO : Table de ratings
-# TODO : Interface for call to training
-# TODO : Use a process pool with shared object for training.
+# TODO : State machine, implement steps
 
 @APP.route("/", methods=['GET', 'POST'])
 def register():
@@ -43,9 +42,10 @@ def trial():
 
     if request.method == 'POST':
         rating = request.form['action']
-        session['ratings_table'][rating] = request.form['id']
-        # TODO : Trigger model training
-        logger.debug("user voted %s", vote)
+        clip_id = request.form['id']
+        logger.debug("user said %s of %s", rating, clip_id)
+        session['ratings_table'][rating] = clip_id
+        # TODO : Trigger model training through a multi-process pool
         return redirect(url_for('trial'))
 
     # TODO : Here we should generate the temporary file with a prefix for the generated files.
