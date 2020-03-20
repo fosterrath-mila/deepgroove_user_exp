@@ -4,34 +4,44 @@
     </head>
     <body>
         <h1>DeepDrummer Experiment</h1>
-        
-        <h2>Step 1/1: Welcome!</h2>
-        <p>        
-            Welcome to the DeepDrummer experiment. The purpose of this experiment is to assess how effectively
-            we can train a deep neural network, using limited data, to understand human musical preferences.
-        </p>
-        <p>
-            The experiment will take place in two phases with a brief pause in between. During each phase, you
-            will be asked to rate a number of short, automatically generated drum loops as either "good" or "bad".                     </p>
-        </p>
-        <p>
-            When we say "good" or "bad", we are asking you to judge whether the drum loop sounds musical or
-            not. We are not asking you to make a judgment as to how original each drum beat sounds. If you
-            could conceive of a drum beat being used in a real musical piece, you should rate it as "good". If
-            the drum loop sounds unpleasant, annoying or has no musical quality in your view, then you should
-            rate it as "bad".
-        </p>
-        <p>
-            Each drum beat will be a short two-second loop repeated 4 times, for a total of 8 seconds. This is
-            because we find that repetition helps assess musicality. However, you do not have to listen to the
-            full 8 seconds before rating a drum beat as good or bad. You can feel free to rate each drum beat
-            as soon as you feel confident in your judgment.
-        </p>
-        <p>
-            The experiment will take approximately 20 minutes of your time and should be completed in one go.
-            We greatly appreciate you taking the time to participate in this short study.
-        </p>
 
+        <h2>Step 1/1: Welcome!</h2>
+        <div>
+            <p>
+                Welcome to the DeepDrummer experiment. The purpose of this
+                experiment is to assess how effectively we can train a deep
+                neural network, using limited data, to understand human musical
+                preferences.
+            </p>
+            <p>
+                The experiment will take place in two phases with a brief pause
+                in between. During each phase, you will be asked to rate a
+                number of short, automatically generated drum loops as either
+                "good" or "bad".
+            </p>
+            <p>
+                When we say "good" or "bad", we are asking you to judge whether
+                the drum loop sounds musical or not. We are not asking you to
+                make a judgment as to how original each drum beat sounds. If
+                you could conceive of a drum beat being used in a real musical
+                piece, you should rate it as "good". If the drum loop sounds
+                unpleasant, annoying or has no musical quality in your view,
+                then you should rate it as "bad".
+            </p>
+            <p>
+                Each drum beat will be a short two-second loop repeated 4
+                times, for a total of 8 seconds. This is because we find that
+                repetition helps assess musicality. However, you do not have to
+                listen to the full 8 seconds before rating a drum beat as good
+                or bad. You can feel free to rate each drum beat as soon as you
+                feel confident in your judgment.
+            </p>
+            <p>
+                The experiment will take approximately 20 minutes of your time
+                and should be completed in one go.  We greatly appreciate you
+                taking the time to participate in this short study.
+            </p>
+        </div>
         <form action="{{ url_for('register') }}" method=post>
             <dt>To begin, please enter your full name in the box below:
             <dd><input type="text" id="participant_name" name="participant_name">

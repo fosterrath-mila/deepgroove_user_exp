@@ -1,32 +1,32 @@
 <html>
     <head>
-        <title>Sample evaluation</title>
+        <title>DeepDrummer experiment</title>
     </head>
     <body>
-        <h1>DeepGroove user experiment</h1>
+        <h1>DeepDrummer experiment</h1>
         <div>
-            <p>User name : "{{ session['participant_name'] }}"</p>
-            <p>Step : " {{ step }} "</p>
             <p>
                 Please listen to the audio clip below and give your appreciation
                 with one of the two buttons.
             </p>
+        </div>
+        <div align="center">
             <audio controls>
-                <source src="{{ clip_url }}" type="audio/wav">
+                <source src="{{ clip_url }}" align="center" type="audio/wav">
                 Your browser does not support the audio element.
                 Please use Firefox or Chrome.
             </audio>
         </div>
-        <form id="user_validation" action="{{ url_for('trial') }}" method="post">
-            <div class="panel-body">
+        <div>
+            <form id="user_validation" align="center" action="{{ url_for('trial') }}" method="post">
                 <input type="hidden" name="id" value="{{ clip_id }}">
-            </div>
-            <div class="panel-body">
                 <input type="submit" name="action" value="good">
-            </div>
-            <div class="panel-body">
                 <input type="submit" name="action" value="bad">
-            </div>
-         </form>
+             </form>
+        </div>
+        <div>
+            <p>User name: {{ session['participant_name'] }}</p>
+            <p>Step: {{ step }}</p>
+        </div>
     </body>
 </html>

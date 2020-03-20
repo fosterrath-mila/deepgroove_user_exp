@@ -1,0 +1,42 @@
+<html>
+    <head>
+        <title>DeepDrummer Experiment</title>
+    </head>
+    <body>
+        <script>
+            function startTimer(duration, display) {
+                var timer = duration, minutes, seconds;
+                setInterval(function () {
+                    minutes = parseInt(timer / 60, 10);
+                    seconds = parseInt(timer % 60, 10);
+
+                    minutes = minutes < 10 ? "0" + minutes : minutes;
+                    seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                    display.textContent = minutes + ":" + seconds;
+
+                    if (--timer < 0) {
+                        // Here we could reactivate a deactivated button which
+                        // proceeds to the rest of the application.
+                        timer = duration;
+                    }
+                }, 1000);
+            }
+
+            window.onload = function () {
+                var seconds_delay = 60 * 2,
+                    display = document.querySelector('#time');
+                startTimer(seconds_delay, display);
+            };
+        </script>
+
+        <h1>DeepDrummer Experiment</h1>
+
+        <h2>Training time</h2>
+        <div>
+            <p>
+                Please wait while we train a model based on your preferences.
+            </p>
+            <div>You may proceed in <span id="time">02:00</span> minutes.</div>
+    </body>
+</html>

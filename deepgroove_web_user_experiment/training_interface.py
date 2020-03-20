@@ -2,8 +2,7 @@
 Interface code for WEB UI and training setup.
 """
 
-# from wave import open as wav_open
-from logging import getLogger
+# TODO: Reactivate when implemented: from wave import open as wav_open
 from pathlib import Path
 from uuid import uuid4
 

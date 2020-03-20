@@ -49,7 +49,10 @@ def trial():
         session['ratings_table'][clip_id] = rating
         run_train(session['ratings_table'])
         session.modified = True
-        return redirect(url_for('trial'))
+        step = len(session['ratings_table'].keys())
+        if step < TOTAL_TRIALS:
+            return redirect(url_for('trial'))
+        return redirect(url_for("train_wait"))
 
     prefix = Path(APP.static_folder)
     clip_f = NamedTemporaryFile(dir=prefix.absolute().as_posix(),
@@ -65,3 +68,11 @@ def trial():
                            clip_id=clip_id,
                            clip_url=clip_url,
                            step=step)
+
+
+@APP.route("/train_wait")
+def train_wait():
+    """
+    Display page informing user that the system is training.
+    """
+    return render_template('train_wait.html')
