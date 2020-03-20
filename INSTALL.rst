@@ -5,7 +5,7 @@ For example:
 .. code-block:: bash
 
    git clone https://github.com/fosterrath-mila/deepgroove_user_exp.git
-   cd deepgroove_web_user_experiment/
+   cd deepgroove_web_user_exp/
    virtualenv -p python3.6 env36
    source env36/bin/activate
    pip install -e .
