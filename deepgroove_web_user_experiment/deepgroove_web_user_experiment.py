@@ -116,7 +116,7 @@ def trial():
     APP.logger.debug("clip path is %s", clip_path)
     clip_id = generate_clip(clip_path)
     APP.logger.debug("ratings table is now %s", session['ratings_table'])
-    trial_count = "%s / %s" % (len(session['ratings_table'].keys()), max_trials)
+    trial_count = "%s / %i" % (len(session['ratings_table'].keys()), max_trials)
     APP.logger.debug("trial count is %s", trial_count)
     # TODO : Consider keeping all the references to temporary files so we can
     # clean them up once all done.
