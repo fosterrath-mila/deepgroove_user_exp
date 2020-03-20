@@ -27,6 +27,12 @@ This is the code base for a WEB interface to conduct user experiments for the Mi
 * Documentation: https://deepgroove-web-user-experiment.readthedocs.io.
 
 
+Installation
+------------
+
+See INSTALL.rst
+
+
 QuickStart
 ----------
 
