@@ -8,52 +8,94 @@ from flask import render_template, request, session, redirect, url_for
 from .training_interface import run_train, generate_clip
 from . import APP
 
-TOTAL_TRIALS = 200
+TOTAL_TRIALS = 200 / 10
+FINAL_TOTAL_TRIALS = 120 / 10
+
 
 @APP.route("/", methods=['GET', 'POST'])
 def register():
     """
     Greet the user and get the username for this session.
+
     When POSTed, redirects to the first trials.
+
+    If the user already has entered his name, we skip this page and redirect to
+    the trials. If the user wants to reset his session, he can simply access
+    the /logout route which will clear his session.
     """
+    # Respond to users information
+    # ----------------------------
     if request.method == 'POST':
-        session.permanent = True
+        session.permanent = True  # Make the cookies survive a browser shutdown.
         session['participant_name'] = request.form['participant_name']
         APP.logger.info("participant name %s", session['participant_name'])
         APP.logger.info("Resetting ratings table")
         session['ratings_table'] = {}
+        session.modified = True
         return redirect(url_for('trial'))
 
+    # Otherwise: Display landing page
+    # -------------------------------
     if 'participant_name' not in session:
         APP.logger.info("Creating initial landing page")
         return render_template('landing.html')
 
-    APP.logger.info("User already has registered, so we direct him to his trials")
+    APP.logger.info("User already has registered, so we direct him to trials")
     return redirect(url_for('trial'))
+
+
+@APP.route("/logout")
+def logout():
+    """
+    Reset the user's session so that we can restart with a clean slate.
+    """
+    session.clear()
+    return redirect(url_for('register'))
 
 
 @APP.route("/trial", methods=['GET', 'POST'])
 def trial():
     """
-    Submit and experiment to the user.
+    Submit an experiment to the user and handle the responses.
 
     Entering this page calls the method to generate a new audio clip. This clip
-    can be player over multiple times. When the user votes on the clip, the
-    page is reloaded, thus creating a new clip.
+    can be played over multiple times.
+
+    When the user gives a rating for the clip, the results are posted to this
+    page through the POST method and the page is reloaded, thus creating a new
+    trial.
     """
+    # Depending if we are in the final evaluation or not...
+    if 'initial_ratings' not in session:
+        max_trials = TOTAL_TRIALS
+    else:
+        max_trials = FINAL_TOTAL_TRIALS
+
+    # Handle the users response (POSTing)
+    # -----------------------------------
     if request.method == 'POST':
-        rating = request.form['action']
+        rating = request.form['rating']
         APP.logger.debug("Form is %s", request.form)
         clip_id = request.form['id']
         APP.logger.debug("user said %s of %s", rating, clip_id)
         session['ratings_table'][clip_id] = rating
-        run_train(session['ratings_table'])
+
+        # We need this to trickle the modification to the proxy's target
+        # object.
         session.modified = True
-        step = len(session['ratings_table'].keys())
-        if step < TOTAL_TRIALS:
+
+        # Only trigger the training if we are not in the final evaluation.
+        if 'initial_ratings' not in session:
+            run_train(session['ratings_table'])
+
+        trial_count = len(session['ratings_table'].keys())
+
+        if trial_count < max_trials:
             return redirect(url_for('trial'))
         return redirect(url_for("train_wait"))
 
+    # Otherwise, present the user with a new trial.
+    # ---------------------------------------------
     prefix = Path(APP.static_folder)
     clip_f = NamedTemporaryFile(dir=prefix.absolute().as_posix(),
                                 suffix='.wav', delete=False)
@@ -61,13 +103,13 @@ def trial():
     APP.logger.debug("clip path is %s", clip_path)
     clip_id = generate_clip(clip_path)
     APP.logger.debug("ratings table is now %s", session['ratings_table'])
-    step = "%s / %s" % (len(session['ratings_table'].keys()), TOTAL_TRIALS)
-    APP.logger.debug("step is %s", step)
+    trial_count = "%s / %s" % (len(session['ratings_table'].keys()), max_trials)
+    APP.logger.debug("trial count is %s", trial_count)
     clip_url = url_for('static', filename=clip_path.name)
     return render_template('trial.html',
                            clip_id=clip_id,
                            clip_url=clip_url,
-                           step=step)
+                           trial=trial_count)
 
 
 @APP.route("/train_wait")
@@ -76,3 +118,13 @@ def train_wait():
     Display page informing user that the system is training.
     """
     return render_template('train_wait.html')
+
+
+@APP.route("/final")
+def final():
+    """
+    Final model evaluation by user.
+    """
+    session['initial_ratings'] = session.pop('ratings_table')
+    session['ratings_table'] = {}
+    return redirect(url_for('trial'))

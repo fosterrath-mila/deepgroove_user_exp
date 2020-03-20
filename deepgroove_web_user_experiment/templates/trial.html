@@ -20,13 +20,13 @@
         <div>
             <form id="user_validation" align="center" action="{{ url_for('trial') }}" method="post">
                 <input type="hidden" name="id" value="{{ clip_id }}">
-                <input type="submit" name="action" value="good">
-                <input type="submit" name="action" value="bad">
+                <input type="submit" name="rating" value="good">
+                <input type="submit" name="rating" value="bad">
              </form>
         </div>
         <div>
             <p>User name: {{ session['participant_name'] }}</p>
-            <p>Step: {{ step }}</p>
+            <p>Trial: {{ trial }}</p>
         </div>
     </body>
 </html>
