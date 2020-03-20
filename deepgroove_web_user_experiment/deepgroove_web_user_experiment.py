@@ -48,6 +48,8 @@ def register():
 def logout():
     """
     Reset the user's session so that we can restart with a clean slate.
+
+    Visiting this page redirects to the landing page.
     """
     session.clear()
     return redirect(url_for('register'))
@@ -57,6 +59,8 @@ def logout():
 def trial():
     """
     Submit an experiment to the user and handle the responses.
+
+    This function is where most of the logic of this WEB application resides.
 
     Entering this page calls the method to generate a new audio clip. This clip
     can be played over multiple times.
@@ -90,9 +94,18 @@ def trial():
 
         trial_count = len(session['ratings_table'].keys())
 
+        # The user has not finished his trials yet, so supply a new one.
         if trial_count < max_trials:
             return redirect(url_for('trial'))
-        return redirect(url_for("train_wait"))
+
+        # Otherwise the user has finished his trials. So redirect to the
+        # appropriate page depending on his progress.
+        # The user still has work to do.
+        if 'initial_ratings' not in session:
+            return redirect(url_for("train_wait"))
+
+        # Otherwise, the user is all done !
+        return redirect(url_for('finished'))
 
     # Otherwise, present the user with a new trial.
     # ---------------------------------------------
@@ -105,6 +118,8 @@ def trial():
     APP.logger.debug("ratings table is now %s", session['ratings_table'])
     trial_count = "%s / %s" % (len(session['ratings_table'].keys()), max_trials)
     APP.logger.debug("trial count is %s", trial_count)
+    # TODO : Consider keeping all the references to temporary files so we can
+    # clean them up once all done.
     clip_url = url_for('static', filename=clip_path.name)
     return render_template('trial.html',
                            clip_id=clip_id,
@@ -128,3 +143,17 @@ def final():
     session['initial_ratings'] = session.pop('ratings_table')
     session['ratings_table'] = {}
     return redirect(url_for('trial'))
+
+
+@APP.route("/finished")
+def finished():
+    """
+    Display a thank you note to the user.
+
+    We could offer a bit of bling, e.g. :
+
+       - Download all liked loops.
+       - Show statistics,
+       - etc.
+    """
+    return render_template('finished.html')
