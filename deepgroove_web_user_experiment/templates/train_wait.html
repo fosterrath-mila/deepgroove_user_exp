@@ -33,18 +33,17 @@
         </script>
 
         <h1>DeepDrummer Experiment</h1>
-
         <h2>Step 3/4: Brief Pause</h2>
-        <div>
+        <div class="contents">
             <p>
                 Please wait while we train a model based on your preferences.
             </p>
-            <div>You may continue to the next step in <span id="time">00:00</span> minutes.</div>
 
-            <div align="center">
-                <form action="{{ url_for('final') }}">
-                    <button type="submit" id="proceed_btn" disabled>Continue</button>
-                </form>
-            </div>
+            <p>You may continue to the next step in <span id="time">00:00</span> minutes.</p>
+
+            <form action="{{ url_for('final') }}">
+                <p><button type="submit" id="proceed_btn" disabled>Continue</button></p>
+            </form>
+        </div>
     </body>
 </html>
