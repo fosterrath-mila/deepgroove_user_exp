@@ -5,7 +5,6 @@ Interface code for WEB UI and training setup.
 # TODO: Reactivate when implemented: from wave import open as wav_open
 from pathlib import Path
 from uuid import uuid4
-
 from . import APP
 
 def generate_clip(out_file_path):
@@ -16,11 +15,14 @@ def generate_clip(out_file_path):
     :returns: The identifier of the clip.
     :rtype: str
     """
+
     # As a placeholder we are only now reading a static file and returning a
     # bytestream..
-    dumb_audio_path = Path('./deepgroove_web_user_experiment/static/trumpet-1.wav')
-    APP.logger.warning("Using stub data for audio generation from file %s",
-                       dumb_audio_path.absolute())
+    dumb_audio_path = Path('./deepgroove_web_user_experiment/static/clips/trumpet-1.wav')
+    APP.logger.warning(
+        "Using stub data for audio generation from file %s",
+       dumb_audio_path.absolute()
+    )
     wav_data = dumb_audio_path.read_bytes()
 
     out_file_path = Path(out_file_path)
@@ -43,5 +45,6 @@ def run_train(ratings):
     """
     This launches the training algorith with a (possibly) updated ratings table.
     """
+
     APP.logger.debug("processing user submitted ratings : %s", ratings)
     # TODO : Use a process pool with shared object for training.

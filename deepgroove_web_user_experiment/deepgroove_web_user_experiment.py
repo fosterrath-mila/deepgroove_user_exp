@@ -1,5 +1,6 @@
 """Main WEB interface definition module."""
 
+import os
 from tempfile import NamedTemporaryFile
 from pathlib import Path
 
@@ -10,7 +11,6 @@ from . import APP
 
 TOTAL_TRIALS = 200 / 10
 FINAL_TOTAL_TRIALS = 120 / 10
-
 
 @APP.route("/", methods=['GET', 'POST'])
 def register():
@@ -23,6 +23,7 @@ def register():
     the trials. If the user wants to reset his session, he can simply access
     the /logout route which will clear his session.
     """
+
     # Respond to users information
     # ----------------------------
     if request.method == 'POST':
@@ -51,6 +52,7 @@ def logout():
 
     Visiting this page redirects to the landing page.
     """
+
     session.clear()
     return redirect(url_for('register'))
 
@@ -69,6 +71,7 @@ def trial():
     page through the POST method and the page is reloaded, thus creating a new
     trial.
     """
+
     # Depending if we are in the final evaluation or not...
     if 'initial_ratings' not in session:
         max_trials = TOTAL_TRIALS
@@ -109,22 +112,31 @@ def trial():
 
     # Otherwise, present the user with a new trial.
     # ---------------------------------------------
-    prefix = Path(APP.static_folder)
-    clip_f = NamedTemporaryFile(dir=prefix.absolute().as_posix(),
-                                suffix='.wav', delete=False)
+    prefix = Path(os.path.join(APP.static_folder, 'clips'))
+    clip_f = NamedTemporaryFile(
+        dir=prefix.absolute().as_posix(),
+        suffix='.wav',
+        delete=False
+    )
     clip_path = Path(clip_f.name)
     APP.logger.debug("clip path is %s", clip_path)
     clip_id = generate_clip(clip_path)
     APP.logger.debug("ratings table is now %s", session['ratings_table'])
     trial_count = "%s / %i" % (len(session['ratings_table'].keys()), max_trials)
     APP.logger.debug("trial count is %s", trial_count)
+
     # TODO : Consider keeping all the references to temporary files so we can
     # clean them up once all done.
-    clip_url = url_for('static', filename=clip_path.name)
-    return render_template('trial.html',
-                           clip_id=clip_id,
-                           clip_url=clip_url,
-                           trial=trial_count)
+    print(prefix)
+    print(clip_path.name)
+
+    clip_url = url_for('static', filename='clips/' + clip_path.name)
+    return render_template(
+        'trial.html',
+        clip_id=clip_id,
+        clip_url=clip_url,
+        trial=trial_count
+    )
 
 
 @APP.route("/train_wait")
@@ -132,6 +144,7 @@ def train_wait():
     """
     Display page informing user that the system is training.
     """
+
     return render_template('train_wait.html')
 
 
@@ -156,4 +169,5 @@ def finished():
        - Show statistics,
        - etc.
     """
+
     return render_template('finished.html')
