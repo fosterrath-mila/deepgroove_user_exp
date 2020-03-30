@@ -75,8 +75,10 @@ def trial():
     # Depending if we are in the final evaluation or not...
     if 'initial_ratings' not in session:
         max_trials = TOTAL_TRIALS
+        step_name = 'Step 2/4: Data Gathering'
     else:
         max_trials = FINAL_TOTAL_TRIALS
+        step_name = 'Step 4/4: Final Evaluation'
 
     # Handle the users response (POSTing)
     # -----------------------------------
@@ -133,6 +135,7 @@ def trial():
     clip_url = url_for('static', filename='clips/' + clip_path.name)
     return render_template(
         'trial.html',
+        step_name=step_name,
         clip_id=clip_id,
         clip_url=clip_url,
         trial=trial_count
