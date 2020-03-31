@@ -6,11 +6,15 @@ from pathlib import Path
 
 from flask import render_template, request, session, redirect, url_for
 
-from .training_interface import run_train, generate_clip
+from .training_interface import Experiment
 from . import APP
 
 TOTAL_TRIALS = 200 / 10
 FINAL_TOTAL_TRIALS = 120 / 10
+
+# Object to manage the state of the experiment (ie: model and data)
+experiment = None
+
 
 @APP.route("/", methods=['GET', 'POST'])
 def register():
@@ -24,26 +28,38 @@ def register():
     the /logout route which will clear his session.
     """
 
-    # Respond to users information
-    # ----------------------------
+    global experiment
+
+    if 'state' not in session:
+        session['state'] = 'landing'
+
+    # Respond to users information being submitted
     if request.method == 'POST':
-        session.permanent = True  # Make the cookies survive a browser shutdown.
-        session['participant_name'] = request.form['participant_name']
-        APP.logger.info("participant name %s", session['participant_name'])
+        user_name = request.form['participant_name']
+        APP.logger.info("participant name %s", user_name)
         APP.logger.info("Resetting ratings table")
-        session['ratings_table'] = {}
+
+        session.permanent = True  # Make the cookies survive a browser shutdown.
+        session['user_name'] = user_name
+        session['state'] = 'phase1'
         session.modified = True
+
+        # Create the experiment object
+        experiment = Experiment(user_name)
+
         return redirect(url_for('trial'))
 
-    # Otherwise: Display landing page
-    # -------------------------------
-    if 'participant_name' not in session:
-        APP.logger.info("Creating initial landing page")
-        return render_template('landing.html')
+    # If the user has already completed the experiment
+    if session['state'] == 'finished':
+        return redirect(url_for('finished'))
 
-    APP.logger.info("User already has registered, so we direct him to trials")
-    return redirect(url_for('trial'))
+    # If the experiment is ongoing
+    if session['state'] in ['phase1', 'phase2']:
+        return redirect(url_for('trial'))
 
+    APP.logger.info("Creating initial landing page")
+    session.modified = True
+    return render_template('landing.html')
 
 @APP.route("/logout")
 def logout():
@@ -53,7 +69,11 @@ def logout():
     Visiting this page redirects to the landing page.
     """
 
+    global experiment
+
     session.clear()
+    session.modified = True
+    experiment = None
     return redirect(url_for('register'))
 
 
@@ -72,48 +92,54 @@ def trial():
     trial.
     """
 
+    global experiment
+
     # Depending if we are in the final evaluation or not...
-    if 'initial_ratings' not in session:
-        max_trials = TOTAL_TRIALS
+    if session['state'] == 'phase1':
         step_name = 'Step 2/4: Data Gathering'
-    else:
-        max_trials = FINAL_TOTAL_TRIALS
+        trial_count = len(experiment.ratings_phase1)
+        max_trials = TOTAL_TRIALS
+    elif session['state'] == 'phase2':
         step_name = 'Step 4/4: Final Evaluation'
+        trial_count = len(experiment.ratings_phase2)
+        max_trials = FINAL_TOTAL_TRIALS
+    else:
+        assert False, 'invalid session state "{}"'.format(session['state'])
 
     # Handle the users response (POSTing)
-    # -----------------------------------
     if request.method == 'POST':
         rating = request.form['rating']
         APP.logger.debug("Form is %s", request.form)
         clip_id = request.form['id']
         APP.logger.debug("user said %s of %s", rating, clip_id)
-        session['ratings_table'][clip_id] = rating
-
-        # We need this to trickle the modification to the proxy's target
-        # object.
-        session.modified = True
 
         # Only trigger the training if we are not in the final evaluation.
-        if 'initial_ratings' not in session:
-            run_train(session['ratings_table'])
-
-        trial_count = len(session['ratings_table'].keys())
+        if session['state'] == 'phase1':
+            experiment.add_rating_phase1(clip_id, rating)
+            experiment.train_incremental()
+        else:
+            experiment.add_rating_phase2(clip_id, rating)
 
         # The user has not finished his trials yet, so supply a new one.
-        if trial_count < max_trials:
+        if trial_count + 1 < max_trials:
             return redirect(url_for('trial'))
 
         # Otherwise the user has finished his trials. So redirect to the
         # appropriate page depending on his progress.
         # The user still has work to do.
-        if 'initial_ratings' not in session:
+        if session['state'] == 'phase1':
+            experiment.full_retrain()
+            session['state'] = 'phase2'
+            session.modified = True
             return redirect(url_for("train_wait"))
 
         # Otherwise, the user is all done !
+        experiment = None
+        session['state'] = 'finished'
+        session.modified = True
         return redirect(url_for('finished'))
 
     # Otherwise, present the user with a new trial.
-    # ---------------------------------------------
     prefix = Path(os.path.join(APP.static_folder, 'clips'))
     clip_f = NamedTemporaryFile(
         dir=prefix.absolute().as_posix(),
@@ -122,10 +148,10 @@ def trial():
     )
     clip_path = Path(clip_f.name)
     APP.logger.debug("clip path is %s", clip_path)
-    clip_id = generate_clip(clip_path)
-    APP.logger.debug("ratings table is now %s", session['ratings_table'])
-    trial_count = "%s / %i" % (len(session['ratings_table'].keys()), max_trials)
-    APP.logger.debug("trial count is %s", trial_count)
+    clip_id = experiment.gen_clip(clip_path)
+
+    trial_count_str = "%s / %i" % (trial_count, max_trials)
+    APP.logger.debug("trial count is %s", trial_count_str)
 
     # TODO : Consider keeping all the references to temporary files so we can
     # clean them up once all done.
@@ -138,7 +164,7 @@ def trial():
         step_name=step_name,
         clip_id=clip_id,
         clip_url=clip_url,
-        trial=trial_count
+        trial=trial_count_str
     )
 
 
@@ -156,8 +182,8 @@ def final():
     """
     Final model evaluation by user.
     """
-    session['initial_ratings'] = session.pop('ratings_table')
-    session['ratings_table'] = {}
+
+    assert session['state'] == 'phase2'
     return redirect(url_for('trial'))
 
 

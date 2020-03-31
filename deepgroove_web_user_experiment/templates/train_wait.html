@@ -16,7 +16,8 @@
 
                     display.textContent = minutes + ":" + seconds;
 
-                    if (--timer < 0) {
+                    if (--timer < 0)
+                    {
                         timer = 0;
                         // Here we reactivate the button which proceeds to
                         // the rest of the application.
@@ -25,7 +26,8 @@
                 }, 1000);
             }
 
-            window.onload = function () {
+            window.onload = function ()
+            {
                 var seconds_delay = 10,
                     display = document.querySelector('#time');
                 startTimer(seconds_delay, display);
@@ -39,7 +41,7 @@
                 Please wait while we train a model based on your preferences.
             </p>
 
-            <p>You may continue to the next step in <span id="time">00:00</span> minutes.</p>
+            <p>You may continue to the next step in <span id="time" style="font-weight:bold">00:00</span> minutes.</p>
 
             <form action="{{ url_for('final') }}">
                 <p><button type="submit" id="proceed_btn" disabled>Continue</button></p>
