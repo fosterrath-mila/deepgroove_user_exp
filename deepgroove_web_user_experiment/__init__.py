@@ -1,6 +1,5 @@
 """Top-level package for Deepgroove WEB user experiment."""
 
-import os
 from flask import Flask
 
 __author__ = """Fred Osterrath"""

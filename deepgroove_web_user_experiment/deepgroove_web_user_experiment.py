@@ -1,6 +1,5 @@
 """Main WEB interface definition module."""
 
-import os
 from tempfile import NamedTemporaryFile
 from pathlib import Path
 
@@ -9,8 +8,10 @@ from flask import render_template, request, session, redirect, url_for
 from .training_interface import run_train, generate_clip
 from . import APP
 
+# TODO : Update with final values (remove divider)
 TOTAL_TRIALS = 200 / 10
 FINAL_TOTAL_TRIALS = 120 / 10
+
 
 @APP.route("/", methods=['GET', 'POST'])
 def register():
@@ -27,7 +28,7 @@ def register():
     # Respond to users information
     # ----------------------------
     if request.method == 'POST':
-        session.permanent = True  # Make the cookies survive a browser shutdown.
+        session.permanent = True  # Make the cookies survive a browser shutdown
         session['participant_name'] = request.form['participant_name']
         APP.logger.info("participant name %s", session['participant_name'])
         APP.logger.info("Resetting ratings table")
@@ -114,14 +115,17 @@ def trial():
 
     # Otherwise, present the user with a new trial.
     # ---------------------------------------------
-    prefix = Path(os.path.join(APP.static_folder, 'clips'))
+    prefix = Path(APP.static_folder, 'clips')
     clip_f = NamedTemporaryFile(
         dir=prefix.absolute().as_posix(),
         suffix='.wav',
         delete=False
     )
-    clip_path = Path(clip_f.name)
+    clip_path = Path(clip_f.name)  # Reuse the tempfile name created by the OS
+    APP.logger.debug("Path prefix is %s", prefix)
+    APP.logger.debug("Clip filename is %s", clip_path.name)
     APP.logger.debug("clip path is %s", clip_path)
+
     clip_id = generate_clip(clip_path)
     APP.logger.debug("ratings table is now %s", session['ratings_table'])
     trial_count = "%s / %i" % (len(session['ratings_table'].keys()), max_trials)
@@ -129,8 +133,6 @@ def trial():
 
     # TODO : Consider keeping all the references to temporary files so we can
     # clean them up once all done.
-    print(prefix)
-    print(clip_path.name)
 
     clip_url = url_for('static', filename='clips/' + clip_path.name)
     return render_template(

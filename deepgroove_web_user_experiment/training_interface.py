@@ -43,7 +43,8 @@ def generate_clip(out_file_path):
 
 def run_train(ratings):
     """
-    This launches the training algorith with a (possibly) updated ratings table.
+    This launches the training algorith with a (possibly) updated ratings
+    table.
     """
 
     APP.logger.debug("processing user submitted ratings : %s", ratings)
