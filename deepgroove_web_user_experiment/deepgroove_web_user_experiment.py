@@ -8,8 +8,18 @@ from flask import render_template, request, session, redirect, url_for
 from .training_interface import run_train, generate_clip
 from . import APP
 
+# Divided by ten for development purposes.
 TOTAL_TRIALS = 200 / 10
 FINAL_TOTAL_TRIALS = 120 / 10
+
+# TODO : Add some sort of process control to start the server in a more rugged
+# way. (E.g. Supervisor with GUnicorn server.
+
+KNOWN_USERS = {}
+
+
+with open('deepgroove_web_user_experiment/user_list.csv', 'rt') as csvfile:
+    KNOWN_USERS = [l.split(',')[0].lower() for l in csvfile.readlines()[1:]]
 
 
 @APP.route("/", methods=['GET', 'POST'])
@@ -26,12 +36,15 @@ def register():
     # Respond to users information
     # ----------------------------
     if request.method == 'POST':
+        participant_name = request.form['participant_name']
+        APP.logger.debug("User base is %s", KNOWN_USERS)
         session.permanent = True  # Make the cookies survive a browser shutdown.
-        session['participant_name'] = request.form['participant_name']
-        APP.logger.info("participant name %s", session['participant_name'])
+        session['participant_name'] = participant_name
+        APP.logger.info("participant name %s", participant_name)
         APP.logger.info("Resetting ratings table")
         session['ratings_table'] = {}
         session.modified = True
+
         return redirect(url_for('trial'))
 
     # Otherwise: Display landing page
