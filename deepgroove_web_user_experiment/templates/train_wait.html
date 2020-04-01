@@ -1,6 +1,7 @@
 <html>
     <head>
         <title>DeepDrummer Experiment</title>
+        <link rel="stylesheet" href="/static/style.css">
     </head>
     <body>
         <script>
@@ -15,7 +16,8 @@
 
                     display.textContent = minutes + ":" + seconds;
 
-                    if (--timer < 0) {
+                    if (--timer < 0)
+                    {
                         timer = 0;
                         // Here we reactivate the button which proceeds to
                         // the rest of the application.
@@ -24,7 +26,8 @@
                 }, 1000);
             }
 
-            window.onload = function () {
+            window.onload = function ()
+            {
                 var seconds_delay = 10,
                     display = document.querySelector('#time');
                 startTimer(seconds_delay, display);
@@ -32,18 +35,17 @@
         </script>
 
         <h1>DeepDrummer Experiment</h1>
-
-        <h2>Training delay</h2>
-        <div>
+        <h2>Step 3/4: Brief Pause</h2>
+        <div class="contents">
             <p>
                 Please wait while we train a model based on your preferences.
             </p>
-            <div>You may proceed in <span id="time">00:00</span> minutes.</div>
 
-            <div align="center">
-                <form action="{{ url_for('final') }}">
-                    <button type="submit" id="proceed_btn" disabled>Proceed</button>
-                </form>
-            </div>
+            <p>You may continue to the next step in <span id="time" style="font-weight:bold">00:00</span> minutes.</p>
+
+            <form action="{{ url_for('final') }}">
+                <p><button type="submit" id="proceed_btn" disabled>Continue</button></p>
+            </form>
+        </div>
     </body>
 </html>

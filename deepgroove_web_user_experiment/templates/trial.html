@@ -1,33 +1,35 @@
 <html>
     <head>
         <title>DeepDrummer experiment</title>
+        <link rel="stylesheet" href="/static/style.css">
     </head>
     <body>
-        <h1>DeepDrummer experiment</h1>
-        <div>
+        <h1>DeepDrummer Experiment</h1>
+        <h2>{{ step_name }}</h2>
+
+        <div class="contents">
             <p>
                 Please listen to the audio clip below and give your appreciation
-                with one of the two buttons.
+                by clicking one of the two buttons labeled "good" or "bad".
             </p>
-        </div>
-        <div align="center">
-            <audio controls>
-                <source src="{{ clip_url }}" align="center" type="audio/wav">
-                Your browser does not support the audio element.
-                Please use Firefox or Chrome.
-            </audio>
-        </div>
-        <div>
+            <div align="center">
+                <audio controls>
+                    <source src="{{ clip_url }}" align="center" type="audio/wav">
+                    Your browser does not support the audio element.
+                    Please use Firefox or Chrome.
+                </audio>
+            </div>
             <form id="user_validation" align="center" action="{{ url_for('trial') }}" method="post">
                 <input type="hidden" name="id" value="{{ clip_id }}">
-                <input type="submit" name="rating" value="good">
-                <input type="submit" name="rating" value="bad">
+
+                <div style="margin: 6px">
+                    <input type="submit" name="rating" value="good">
+                    <input type="submit" name="rating" value="bad">
+                </div>
              </form>
-        </div>
-        <div>
-            <p>Clip ID: {{ clip_id }}</p>
-            <p>User name: {{ session['participant_name'] }}</p>
+            <p>User name: {{ session['user_name'] }}</p>
             <p>Trial: {{ trial }}</p>
         </div>
+
     </body>
 </html>

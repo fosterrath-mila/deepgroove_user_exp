@@ -1,12 +1,13 @@
 <html>
     <head>
         <title>DeepDrummer Experiment</title>
+        <link rel="stylesheet" href="/static/style.css">
     </head>
     <body>
         <h1>DeepDrummer Experiment</h1>
+        <h2>Step 1/1: Welcome!</h2>
 
-        <h2>Step 1: Welcome!</h2>
-        <div>
+        <div class="contents">
             <p>
                 Welcome to the DeepDrummer experiment. The purpose of this
                 experiment is to assess how effectively we can train a deep
@@ -41,11 +42,15 @@
                 and should be completed in one go.  We greatly appreciate you
                 taking the time to participate in this short study.
             </p>
+
+            <form action="{{ url_for('register') }}" method=post>
+                <p>To begin, please enter your full name in the box below:</p>
+                <p>
+                    <input type="text" id="participant_name" name="participant_name">
+                    <input type="submit" id="submit_name">
+                </p>
+            </form>
+
         </div>
-        <form action="{{ url_for('register') }}" method=post>
-            <dt>To begin, please enter your full name in the box below:
-            <dd><input type="text" id="participant_name" name="participant_name">
-            <input type="submit" id="submit_name">
-        </form>
     </body>
 </html>
