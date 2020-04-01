@@ -14,6 +14,14 @@ TOTAL_TRIALS = 200 / 10
 FINAL_TOTAL_TRIALS = 120 / 10
 
 # Object to manage the state of the experiment (ie: model and data)
+# We might want to consider storing the experiment in the context of the
+# session. i.e.: The session is perenial to a user's context in the
+# interactivity with all of the functions in this context. Because here, as a
+# global variable there is a danger that variable instances be HTTP - worker
+# local. And that could turn into a pretty clusterfuck. That being said, I
+# doubdt that the session will handle the pickling of a custom class without
+# pain. I'd go for state in the session object, and stateless functions in the
+# training_interface.py module.
 experiment = None
 
 
