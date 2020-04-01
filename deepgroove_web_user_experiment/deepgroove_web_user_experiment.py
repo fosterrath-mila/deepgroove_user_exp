@@ -1,6 +1,5 @@
 """Main WEB interface definition module."""
 
-import os
 from tempfile import NamedTemporaryFile
 from pathlib import Path
 
@@ -48,7 +47,7 @@ def register():
         APP.logger.info("participant name %s", user_name)
         APP.logger.info("Resetting ratings table")
 
-        session.permanent = True  # Make the cookies survive a browser shutdown.
+        session.permanent = True  # Make the cookies survive a browser shutdown
         session['user_name'] = user_name
         session['state'] = 'phase1'
         session.modified = True
@@ -150,7 +149,7 @@ def trial():
         return redirect(url_for('finished'))
 
     # Otherwise, present the user with a new trial.
-    prefix = Path(os.path.join(APP.static_folder, 'clips'))
+    prefix = Path(APP.static_folder, 'clips')
     clip_f = NamedTemporaryFile(
         dir=prefix.absolute().as_posix(),
         suffix='.wav',
