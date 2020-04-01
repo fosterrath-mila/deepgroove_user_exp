@@ -6,7 +6,7 @@ from pathlib import Path
 
 from flask import render_template, request, session, redirect, url_for
 
-from .training_interface import Experiment
+from .training_interface import WebExperiment
 from . import APP
 
 # Divided by ten for development purposes.
@@ -46,7 +46,7 @@ def register():
         session.modified = True
 
         # Create the experiment object
-        experiment = Experiment(user_name)
+        experiment = WebExperiment(user_name)
 
         return redirect(url_for('trial'))
 
