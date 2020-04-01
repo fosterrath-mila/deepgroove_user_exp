@@ -2,15 +2,17 @@
 Interface code for WEB UI and training setup.
 """
 
-import os
 from pathlib import Path
 from uuid import uuid4
-from . import APP
 
 import soundfile as sf
-from deepgroove.deepdrummer.experiment import Experiment
 
-class WebExperiment(Experiment):
+# from deepgroove.deepdrummer.experiment import Experiment
+from . import APP
+
+
+# class WebExperiment(Experiment):
+class WebExperiment():
     """
     Handle web-specific details of experiment management
     """

@@ -1,5 +1,6 @@
 """Main WEB interface definition module."""
 
+from logging import StreamHandler, INFO
 from tempfile import NamedTemporaryFile
 from pathlib import Path
 
@@ -22,6 +23,16 @@ FINAL_TOTAL_TRIALS = 120 / 10
 # pain. I'd go for state in the session object, and stateless functions in the
 # training_interface.py module.
 experiment = None
+
+
+@APP.before_first_request
+def setup_logging():
+    """
+    We need to configure the logger before we acess it, or else it is non
+    functionnal in a Flask production setting.
+    """
+    if not APP.debug:
+        APP.logger.setLevel(INFO)
 
 
 @APP.route("/", methods=['GET', 'POST'])
@@ -68,6 +79,7 @@ def register():
     APP.logger.info("Creating initial landing page")
     session.modified = True
     return render_template('landing.html')
+
 
 @APP.route("/logout")
 def logout():

@@ -5,17 +5,17 @@
 from setuptools import setup, find_packages
 
 with open('README.rst') as readme_file:
-    readme = readme_file.read()
+    README = readme_file.read()
 
 with open('HISTORY.rst') as history_file:
-    history = history_file.read()
+    HISTORY = history_file.read()
 
-requirements = ['flask',
+REQUIREMENTS = ['flask',
                 'soundfile']
 
-setup_requirements = ['pytest-runner', ]
+SETUP_REQUIREMENTS = ['pytest-runner', ]
 
-test_requirements = ['pytest>=3', ]
+TEST_REQUIREMENTS = ['pytest>=3', ]
 
 setup(
     author="Fred Osterrath",
@@ -32,22 +32,25 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
     ],
-    description="This is the code base for a WEB interface to conduct user experiments for the Mila DeepGroove project.",
+    description="This is the code base for a WEB interface to conduct user"
+                "experiments for the Mila DeepGroove project.",
     entry_points={
         'console_scripts': [
-            'deepgroove_web_user_experiment=deepgroove_web_user_experiment.cli:main',
+            'deepgroove_web_user_experiment='
+            'deepgroove_web_user_experiment.cli:main',
         ],
     },
-    install_requires=requirements,
+    install_requires=REQUIREMENTS,
     license="BSD license",
-    long_description=readme + '\n\n' + history,
+    long_description=README + '\n\n' + HISTORY,
     include_package_data=True,
     keywords='deepgroove_web_user_experiment',
     name='deepgroove_web_user_experiment',
-    packages=find_packages(include=['deepgroove_web_user_experiment', 'deepgroove_web_user_experiment.*']),
-    setup_requires=setup_requirements,
+    packages=find_packages(include=['deepgroove_web_user_experiment',
+                                    'deepgroove_web_user_experiment.*']),
+    setup_requires=SETUP_REQUIREMENTS,
     test_suite='tests',
-    tests_require=test_requirements,
+    tests_require=TEST_REQUIREMENTS,
     url='https://github.com/fosterrath-mila/deepgroove_web_user_experiment',
     version='0.1.0',
     zip_safe=False,
