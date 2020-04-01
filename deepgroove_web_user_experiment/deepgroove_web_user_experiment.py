@@ -135,6 +135,7 @@ def trial():
             return redirect(url_for("train_wait"))
 
         # Otherwise, the user is all done !
+        experiment.save_data()
         experiment = None
         session['state'] = 'finished'
         session.modified = True
