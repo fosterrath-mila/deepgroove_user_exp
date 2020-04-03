@@ -169,7 +169,11 @@ def trial():
     )
     clip_path = Path(clip_f.name)
     APP.logger.debug("clip path is %s", clip_path)
-    clip_id = experiment.gen_clip(clip_path)
+
+    if session['state'] == 'phase1':
+        clip_id = experiment.gen_clip_phase1(clip_path)
+    else:
+        clip_id = experiment.gen_clip_phase2(clip_path)
 
     trial_count_str = "%s / %i" % (trial_count, max_trials)
     APP.logger.debug("trial count is %s", trial_count_str)
