@@ -7,12 +7,11 @@ from uuid import uuid4
 
 import soundfile as sf
 
-# from deepgroove.deepdrummer.experiment import Experiment
+from deepgroove.deepdrummer.experiment import Experiment
 from . import APP
 
 
-# class WebExperiment(Experiment):
-class WebExperiment():
+class WebExperiment(Experiment):
     """
     Handle web-specific details of experiment management
     """

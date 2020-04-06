@@ -175,7 +175,7 @@ def trial():
     else:
         clip_id = experiment.gen_clip_phase2(clip_path)
 
-    trial_count_str = "%s / %i" % (trial_count, max_trials)
+    trial_count_str = "%s / %i" % (trial_count + 1, max_trials)
     APP.logger.debug("trial count is %s", trial_count_str)
 
     # TODO : Consider keeping all the references to temporary files so we can
