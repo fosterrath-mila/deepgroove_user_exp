@@ -1,5 +1,7 @@
 """Main WEB interface definition module."""
 
+import os
+import csv
 from logging import StreamHandler, INFO
 from tempfile import NamedTemporaryFile
 from pathlib import Path
@@ -23,6 +25,35 @@ FINAL_TOTAL_TRIALS = 120 / 10
 # pain. I'd go for state in the session object, and stateless functions in the
 # training_interface.py module.
 experiment = None
+
+
+def find_user(query_email):
+    """
+    Locate a given user in the list based on their e-mail
+    This produces their full name as well as a unique user index
+    The user index is simply the row index in the spreadsheet, which
+    we can use to identify the user internally.
+    """
+
+    csv_path = os.path.join(APP.root_path, 'user_list.csv')
+
+    with open(csv_path, newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',', quotechar='"')
+        #rows = list(reader)
+
+        for idx, row in enumerate(reader):
+            # Skip the first row (heading)
+            if idx == 0:
+                continue
+
+            user_email, user_name, status = row
+            print(user_email, user_name, status)
+
+            # Return the row number of the user
+            if user_email == query_email:
+                return idx, user_name, status
+
+    raise KeyError('user not found')
 
 
 @APP.before_first_request
@@ -58,21 +89,21 @@ def register():
         APP.logger.info("User e-mail %s", user_email)
         APP.logger.info("Resetting ratings table")
 
+        try:
+            # Find the user in the list
+            user_idx, user_name, status = find_user(user_email)
 
-
-
-        # TODO: validate e-mail based on CSV file
-        # TODO: fetch name from CSV file
-        user_name = ''
-
-
-
-
-
+        except KeyError:
+            return render_template(
+                'landing.html',
+                error_string='ERROR: user not found, please make sure to use ' +
+                'the same e-mail address you previously shared with us.'
+            )
 
         session.permanent = True  # Make the cookies survive a browser shutdown
+        session['user_idx'] = user_idx
         session['user_email'] = user_email
-        session['user_name'] = ''
+        session['user_name'] = user_name
         session['state'] = 'phase1'
         session.modified = True
 

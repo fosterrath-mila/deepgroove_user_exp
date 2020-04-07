@@ -48,10 +48,14 @@
                     To begin, please enter e-mail address in the box below. This
                     should be the same address that we used to contact you:
                 <p>
-                    <input type="text" name="user_email">
+                    <input type="text" name="user_email" size="32">
                     <input type="submit">
                 </p>
             </form>
+
+            <p style="color: red; font-weight: bold;">
+                {{ error_string }}
+            </p>
 
         </div>
     </body>
