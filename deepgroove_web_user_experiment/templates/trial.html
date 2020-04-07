@@ -20,6 +20,13 @@
 
                 btn_good.onclick = greyButtons;
                 btn_bad.onclick = greyButtons;
+
+                // Start playback when the space key is pressed
+                window.onkeydown = function (evt)
+                {
+                    if (evt.key == ' ')
+                        audio.play();
+                }
             }
         </script>
     </head>
@@ -33,6 +40,7 @@
                 by clicking one of the two buttons labeled "good" or "bad".
             </p>
             <div align="center">
+                <p>Trial: {{ trial }}</p>
                 <audio id="audio" controls>
                     <source src="{{ clip_url }}" align="center" type="audio/wav">
                     Your browser does not support the audio element.
@@ -46,8 +54,7 @@
                     <input id="btn_bad" type="submit" name="rating" value="bad" style="margin: 6px; margin-right: 8px; font-size: 18px; background: #F00;">
                 </div>
              </form>
-            <p>User name: {{ session['user_name'] }}</p>
-            <p>Trial: {{ trial }}</p>
+            <p>User: {{ session['user_email'] }}</p>
         </div>
 
     </body>
