@@ -9,17 +9,41 @@
                 let btn_bad = document.getElementById("btn_bad");
                 let audio = document.getElementById("audio");
 
-                // This is meant to give the user some clear visual
-                // feedback when the next trial begins
-                function greyButtons()
+                let played = false;
+                let submitted = false;
+
+                audio.onplay = function()
                 {
+                    played = true;
+                    audio.blur();
+                }
+
+                function btnClicked(evt)
+                {
+                    // Prevent accidentally clicking without listening
+                    // and also prevent double submissions
+                    if (!played || submitted)
+                    {
+                        console.log('Prevent form submission');
+                        evt.preventDefault();
+                        evt.stopPropagation();
+                        btn_good.blur();
+                        btn_bad.blur();
+                        return;
+                    }
+
+                    // This is meant to give the user some clear visual
+                    // feedback when the next trial begins
                     btn_good.style.background = '#777';
                     btn_bad.style.background = '#777';
                     audio.pause();
+
+                    // Track that the form was submitted
+                    submitted = true;
                 }
 
-                btn_good.onclick = greyButtons;
-                btn_bad.onclick = greyButtons;
+                btn_good.onclick = btnClicked;
+                btn_bad.onclick = btnClicked;
 
                 // Start playback when the space key is pressed
                 window.onkeydown = function (evt)
