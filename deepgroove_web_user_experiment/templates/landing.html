@@ -44,10 +44,12 @@
             </p>
 
             <form action="{{ url_for('register') }}" method=post>
-                <p>To begin, please enter your full name in the box below:</p>
                 <p>
-                    <input type="text" id="participant_name" name="participant_name">
-                    <input type="submit" id="submit_name">
+                    To begin, please enter e-mail address in the box below. This
+                    should be the same address that we used to contact you:
+                <p>
+                    <input type="text" name="user_email">
+                    <input type="submit">
                 </p>
             </form>
 

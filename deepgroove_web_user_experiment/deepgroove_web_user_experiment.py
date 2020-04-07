@@ -54,17 +54,30 @@ def register():
 
     # Respond to users information being submitted
     if request.method == 'POST':
-        user_name = request.form['participant_name']
-        APP.logger.info("participant name %s", user_name)
+        user_email = request.form['user_email']
+        APP.logger.info("User e-mail %s", user_email)
         APP.logger.info("Resetting ratings table")
 
+
+
+
+        # TODO: validate e-mail based on CSV file
+        # TODO: fetch name from CSV file
+        user_name = ''
+
+
+
+
+
+
         session.permanent = True  # Make the cookies survive a browser shutdown
-        session['user_name'] = user_name
+        session['user_email'] = user_email
+        session['user_name'] = ''
         session['state'] = 'phase1'
         session.modified = True
 
         # Create the experiment object
-        experiment = WebExperiment(user_name)
+        experiment = WebExperiment(user_email, user_name)
 
         return redirect(url_for('trial'))
 

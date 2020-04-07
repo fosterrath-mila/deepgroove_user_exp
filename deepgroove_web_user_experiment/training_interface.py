@@ -16,8 +16,8 @@ class WebExperiment(Experiment):
     Handle web-specific details of experiment management
     """
 
-    def __init__(self, user_name):
-        super().__init__(user_name)
+    def __init__(self, user_email, user_name):
+        super().__init__(user_email, user_name)
 
         self.last_clip_id = None
 
