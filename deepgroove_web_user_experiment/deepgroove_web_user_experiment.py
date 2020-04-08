@@ -11,9 +11,9 @@ from flask import render_template, request, session, redirect, url_for
 from .training_interface import WebExperiment
 from . import APP
 
-# Divided by ten for development purposes.
-TOTAL_TRIALS = 200 / 10
-FINAL_TOTAL_TRIALS = 120 / 10
+# Divided by 20 for development purposes.
+TOTAL_TRIALS = 200 / 20
+FINAL_TOTAL_TRIALS = 120 / 20
 
 # Object to manage the state of the experiment (ie: model and data)
 # We might want to consider storing the experiment in the context of the
@@ -54,6 +54,24 @@ def find_user(query_email):
                 return idx, user_name, status
 
     raise KeyError('user not found')
+
+
+def get_save_path():
+    """
+    Generate a unique path for a (non-existent) directory
+    where to save the collected data for this experiment
+    """
+
+    data_dir_path = os.path.join(APP.root_path, 'data')
+    assert os.path.exists(data_dir_path)
+
+    # Find the next available subdirectory
+    for i in range(10000):
+        save_path = os.path.join(data_dir_path, str(i))
+        if not os.path.exists(save_path):
+            return save_path
+
+    raise IOError('could not generate save path')
 
 
 @APP.before_first_request
@@ -198,7 +216,8 @@ def trial():
             return redirect(url_for("train_wait"))
 
         # Otherwise, the user is all done !
-        experiment.save_data()
+        save_data_path = get_save_path()
+        experiment.save_data(save_data_path)
         experiment = None
         session['state'] = 'finished'
         session.modified = True
