@@ -46,12 +46,12 @@ def find_user(query_email):
             if idx == 0:
                 continue
 
-            user_email, user_name, status = row
-            print(user_email, user_name, status)
+            row = map(lambda s: s.strip(), row)
+            user_email, user_name = row
 
             # Return the row number of the user
-            if user_email == query_email:
-                return idx, user_name, status
+            if user_email == query_email.strip():
+                return idx, user_name
 
     raise KeyError('user not found')
 
@@ -109,7 +109,7 @@ def register():
 
         try:
             # Find the user in the list
-            user_idx, user_name, status = find_user(user_email)
+            user_idx, user_name = find_user(user_email)
 
         except KeyError:
             return render_template(
