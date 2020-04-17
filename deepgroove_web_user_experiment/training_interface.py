@@ -28,6 +28,9 @@ def train_process(pipe, user_name, user_email):
     # Latest clip generated during phase 1
     latest_clip = experiment.gen_clip_phase1()
 
+    # FIXME: we need some kind of a timeout
+    # at least stop training if we haven't received any ratings/requests in a while.
+
     while True:
         if not pipe.poll() and phase == 1:
             print('Training')
@@ -35,30 +38,40 @@ def train_process(pipe, user_name, user_email):
             latest_clip = experiment.gen_clip_phase1()
             continue
 
-        print('pipe poll:', pipe.poll())
+        print('Receiving message')
 
+        # Read the message
         req = pipe.recv()
+        req_type = req[0]
+        args = req[1:]
 
         print('got request: ', req)
         sys.stdout.flush()
 
-        if req[0] == 'add_rating':
+        if req_type == 'add_rating':
             print('got rating')
             sys.stdout.flush()
 
             if phase is 1:
-                experiment.add_rating_phase1(req[1])
+                experiment.add_rating_phase1(args[0])
             else:
-                experiment.add_rating_phase2(req[1])
+                experiment.add_rating_phase2(args[0])
             continue
 
-        if req[0] == 'get_clip':
+        if req_type == 'gen_clip':
             if phase is 1:
                 print('sending clip')
                 pipe.send(latest_clip)
                 print('clip sent')
             else:
-                assert False
+                clip = experiment.gen_clip_phase2()
+                pipe.send(clip)
+            continue
+
+        if req_type == 'start_phase2':
+            print('received start of phase 2')
+            experiment.start_phase2()
+            phase = 2
             continue
 
         assert False, "unknown request type " + req[0]
@@ -104,10 +117,8 @@ class WebExperiment():
         :rtype: str
         """
 
-        #audio = super().gen_clip_phase1()
-
         # Generate an audio clip
-        self.pipe.send(['get_clip'])
+        self.pipe.send(['gen_clip'])
         audio = self.pipe.recv()
 
         out_file_path = Path(out_file_path)
@@ -123,7 +134,20 @@ class WebExperiment():
         if str(clip_uuid) != str(self.last_clip_id):
             raise KeyError('mismatched clip uuid')
 
-        print('SENDING RATING')
-
         # Send the rating to the training process
         self.pipe.send(['add_rating', rating])
+
+    def start_phase2(self):
+        """
+        Signal the start of phase 2
+        """
+
+        self.pipe.send(['start_phase2'])
+
+    def save_data(self, out_path):
+        """
+        Save the experiment data
+        """
+
+        # TODO
+        pass

@@ -204,8 +204,9 @@ def trial():
         # appropriate page depending on his progress.
         # The user still has work to do.
         if session['state'] == 'phase1':
-            experiment.full_retrain()
+            experiment.start_phase2()
             session['state'] = 'phase2'
+            session['trial_count'] = 0
             session.modified = True
             return redirect(url_for("train_wait"))
 
