@@ -6,25 +6,14 @@ from logging import StreamHandler, INFO
 from tempfile import NamedTemporaryFile
 from pathlib import Path
 
-from flask import render_template, request, session, redirect, url_for
+from flask import render_template, request, session, redirect, url_for, g
 
-from .training_interface import WebExperiment
+from .training_interface import WebExperiment, experiments
 from . import APP
 
 # Divided by 20 for development purposes.
 TOTAL_TRIALS = 200 / 20
 FINAL_TOTAL_TRIALS = 120 / 20
-
-# Object to manage the state of the experiment (ie: model and data)
-# We might want to consider storing the experiment in the context of the
-# session. i.e.: The session is perenial to a user's context in the
-# interactivity with all of the functions in this context. Because here, as a
-# global variable there is a danger that variable instances be HTTP - worker
-# local. And that could turn into a pretty clusterfuck. That being said, I
-# doubdt that the session will handle the pickling of a custom class without
-# pain. I'd go for state in the session object, and stateless functions in the
-# training_interface.py module.
-experiment = None
 
 
 def find_user(query_email):
@@ -123,10 +112,11 @@ def register():
         session['user_email'] = user_email
         session['user_name'] = user_name
         session['state'] = 'phase1'
+        session['trial_count'] = 0
         session.modified = True
 
-        # Create the experiment object
-        experiment = WebExperiment(user_email, user_name)
+        # Create the experiment object for this user
+        experiments[user_idx] = WebExperiment(user_email, user_name)
 
         return redirect(url_for('trial'))
 
@@ -151,11 +141,13 @@ def logout():
     Visiting this page redirects to the landing page.
     """
 
-    global experiment
+    user_idx = int(session['user_idx'])
+    if user_idx in experiments:
+        del experiments[user_idx]
 
     session.clear()
     session.modified = True
-    experiment = None
+
     return redirect(url_for('register'))
 
 
@@ -174,16 +166,19 @@ def trial():
     trial.
     """
 
-    global experiment
+    print('TRIAL ROUTE')
+
+    user_idx = int(session['user_idx'])
+    experiment = experiments[user_idx]
+
+    trial_count = int(session['trial_count'])
 
     # Depending if we are in the final evaluation or not...
     if session['state'] == 'phase1':
         step_name = 'Step 2/4: Data Gathering'
-        trial_count = len(experiment.ratings_phase1)
         max_trials = TOTAL_TRIALS
     elif session['state'] == 'phase2':
         step_name = 'Step 4/4: Final Evaluation'
-        trial_count = len(experiment.ratings_phase2)
         max_trials = FINAL_TOTAL_TRIALS
     else:
         assert False, 'invalid session state "{}"'.format(session['state'])
@@ -195,12 +190,11 @@ def trial():
         clip_id = request.form['id']
         APP.logger.debug("user said %s of %s", rating, clip_id)
 
-        # Only trigger the training if we are not in the final evaluation.
-        if session['state'] == 'phase1':
-            experiment.add_rating_phase1(clip_id, rating)
-            experiment.train_incremental()
-        else:
-            experiment.add_rating_phase2(clip_id, rating)
+        # Add the rating
+        experiment.add_rating(clip_id, rating)
+
+        # Keep track of the number of trials
+        session['trial_count'] = trial_count + 1
 
         # The user has not finished his trials yet, so supply a new one.
         if trial_count + 1 < max_trials:
@@ -218,7 +212,10 @@ def trial():
         # Otherwise, the user is all done !
         save_data_path = get_save_path()
         experiment.save_data(save_data_path)
-        experiment = None
+
+        # Delete the experiment object
+        del experiments[user_idx]
+
         session['state'] = 'finished'
         session.modified = True
         return redirect(url_for('finished'))
@@ -233,10 +230,7 @@ def trial():
     clip_path = Path(clip_f.name)
     APP.logger.debug("clip path is %s", clip_path)
 
-    if session['state'] == 'phase1':
-        clip_id = experiment.gen_clip_phase1(clip_path)
-    else:
-        clip_id = experiment.gen_clip_phase2(clip_path)
+    clip_id = experiment.gen_clip(clip_path)
 
     trial_count_str = "%s / %i" % (trial_count + 1, max_trials)
     APP.logger.debug("trial count is %s", trial_count_str)
