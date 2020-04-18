@@ -74,6 +74,9 @@ def train_process(pipe, user_name, user_email):
             phase = 2
             continue
 
+        if req_type == 'close':
+            break
+
         assert False, "unknown request type " + req[0]
 
 
@@ -103,9 +106,8 @@ class WebExperiment():
 
         print('**** DELETING EXPERIMENT OBJECT ****')
 
-        self.reqs.send(['close'])
-        self.reqs.close()
-        self.resp.close()
+        self.pipe.send(['close'])
+        self.pipe.close()
         self.proc.join()
 
     def gen_clip(self, out_file_path):
