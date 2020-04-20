@@ -141,9 +141,10 @@ def logout():
     Visiting this page redirects to the landing page.
     """
 
-    user_idx = int(session['user_idx'])
-    if user_idx in experiments:
-        del experiments[user_idx]
+    if 'user_idx' in session:
+        user_idx = int(session['user_idx'])
+        if user_idx in experiments:
+            del experiments[user_idx]
 
     session.clear()
     session.modified = True
