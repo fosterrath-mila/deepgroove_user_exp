@@ -5,11 +5,14 @@
     </head>
     <body>
         <script>
-            function startTimer(duration, display) {
-                var timer = duration, minutes, seconds;
-                setInterval(function () {
-                    minutes = parseInt(timer / 60, 10);
-                    seconds = parseInt(timer % 60, 10);
+            function startTimer(duration, display)
+            {
+                var timer = duration;
+
+                function update()
+                {
+                    var minutes = parseInt(timer / 60, 10);
+                    var seconds = parseInt(timer % 60, 10);
 
                     minutes = minutes < 10 ? "0" + minutes : minutes;
                     seconds = seconds < 10 ? "0" + seconds : seconds;
@@ -23,14 +26,19 @@
                         // the rest of the application.
                         document.getElementById("proceed_btn").disabled = false;
                     }
-                }, 1000);
+                }
+
+                // Do the first update now so we immediately see the time
+                update();
+
+                setInterval(update, 1000);
             }
 
             window.onload = function ()
             {
-                var seconds_delay = 10,
-                    display = document.querySelector('#time');
-                startTimer(seconds_delay, display);
+                let pauseTime = 45;
+                let display = document.querySelector('#time');
+                startTimer(pauseTime, display);
             };
         </script>
 
