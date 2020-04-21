@@ -74,6 +74,11 @@ def train_process(pipe, user_name, user_email):
             phase = 2
             continue
 
+        if req_type == 'save_data':
+            save_path = args[0]
+            experiment.save_data(save_path)
+            break
+
         if req_type == 'close':
             break
 
@@ -151,5 +156,4 @@ class WebExperiment():
         Save the experiment data
         """
 
-        # TODO
-        pass
+        self.pipe.send(['save_data', out_path])
