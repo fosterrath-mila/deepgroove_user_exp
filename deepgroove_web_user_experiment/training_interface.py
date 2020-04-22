@@ -76,7 +76,8 @@ def train_process(pipe, exp_kwargs):
 
         if req_type == 'save_data':
             save_path = args[0]
-            experiment.save_data(save_path)
+            data = experiment.save_data(save_path)
+            pipe.send(data)
             break
 
         if req_type == 'close':
@@ -156,3 +157,5 @@ class WebExperiment():
         """
 
         self.pipe.send(['save_data', out_path])
+        data = self.pipe.recv()
+        return data

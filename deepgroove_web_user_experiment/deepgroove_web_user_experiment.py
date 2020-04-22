@@ -11,10 +11,10 @@ from flask import render_template, request, session, redirect, url_for, g
 from .training_interface import WebExperiment, experiments
 from . import APP
 
-PHASE1_TRIALS = 20
-SAVE_INTERVAL = 10
-TRIALS_PER_MODEL = 6
-PHASE2_TRIALS = (PHASE1_TRIALS // SAVE_INTERVAL) * TRIALS_PER_MODEL
+PHASE1_TRIALS = 100
+SAVE_INTERVAL = 50
+TRIALS_PER_MODEL = 25
+PHASE2_TRIALS = ((PHASE1_TRIALS // SAVE_INTERVAL) + 1) * TRIALS_PER_MODEL
 
 def find_user(query_email):
     """
@@ -158,6 +158,31 @@ def logout():
     return redirect(url_for('register'))
 
 
+def render_results(data):
+    """
+    Render a page with the experiment results (for debugging only)
+    """
+
+    ratings = data['phase2_ratings']
+
+    model_ratings = {}
+
+    for model_count, rating in ratings:
+        if model_count not in model_ratings:
+            model_ratings[model_count] = [model_count, 0, 0]
+
+        if rating == 'good':
+            model_ratings[model_count][1] += 1
+        model_ratings[model_count][2] += 1
+
+    model_ratings = [model_ratings[c] for c in sorted(model_ratings.keys())]
+
+    return render_template(
+        'results.html',
+        model_ratings=model_ratings
+    )
+
+
 @APP.route("/trial", methods=['GET', 'POST'])
 def trial():
     """
@@ -219,14 +244,16 @@ def trial():
 
         # Otherwise, the user is all done !
         save_data_path = get_save_path()
-        experiment.save_data(save_data_path)
+        data = experiment.save_data(save_data_path)
 
         # Delete the experiment object
         del experiments[user_idx]
 
         session['state'] = 'finished'
         session.modified = True
-        return redirect(url_for('finished'))
+
+        return render_results(data)
+        #return redirect(url_for('finished'))
 
     # Otherwise, present the user with a new trial.
     prefix = Path(APP.static_folder, 'clips')
