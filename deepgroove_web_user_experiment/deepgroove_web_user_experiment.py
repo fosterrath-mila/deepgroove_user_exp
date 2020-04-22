@@ -11,10 +11,10 @@ from flask import render_template, request, session, redirect, url_for, g
 from .training_interface import WebExperiment, experiments
 from . import APP
 
-# Divided by 20 for development purposes.
-TOTAL_TRIALS = 200 / 20
-FINAL_TOTAL_TRIALS = 120 / 20
-
+PHASE1_TRIALS = 20
+SAVE_INTERVAL = 10
+TRIALS_PER_MODEL = 6
+PHASE2_TRIALS = (PHASE1_TRIALS // SAVE_INTERVAL) * TRIALS_PER_MODEL
 
 def find_user(query_email):
     """
@@ -116,7 +116,13 @@ def register():
         session.modified = True
 
         # Create the experiment object for this user
-        experiments[user_idx] = WebExperiment(user_email, user_name)
+        experiments[user_idx] = WebExperiment(
+            user_email=user_email,
+            user_name=user_name,
+            phase1_count=PHASE1_TRIALS,
+            save_interval=SAVE_INTERVAL,
+            trials_per_model=TRIALS_PER_MODEL
+        )
 
         return redirect(url_for('trial'))
 
@@ -177,10 +183,10 @@ def trial():
     # Depending if we are in the final evaluation or not...
     if session['state'] == 'phase1':
         step_name = 'Step 2/4: Data Gathering'
-        max_trials = TOTAL_TRIALS
+        max_trials = PHASE1_TRIALS
     elif session['state'] == 'phase2':
         step_name = 'Step 4/4: Final Evaluation'
-        max_trials = FINAL_TOTAL_TRIALS
+        max_trials = PHASE2_TRIALS
     else:
         assert False, 'invalid session state "{}"'.format(session['state'])
 

@@ -14,13 +14,13 @@ from . import APP
 # Map of user indices to experiment objects
 experiments = {}
 
-def train_process(pipe, user_name, user_email):
+def train_process(pipe, exp_kwargs):
     """
     Training process. Communicates through a bidirectional pipe
     """
 
     # Create the experiment object
-    experiment = Experiment(user_email, user_name)
+    experiment = Experiment(**exp_kwargs)
 
     # Keep track of the current phase
     phase = 1
@@ -90,14 +90,13 @@ class WebExperiment():
     Handle web-specific details of experiment management
     """
 
-    def __init__(self, user_email, user_name):
+    def __init__(self, **kwargs):
 
         self.pipe, pipe_child = Pipe()
 
         self.proc = Process(target=train_process, kwargs={
             'pipe': pipe_child,
-            'user_email': user_email,
-            'user_name': user_name
+            'exp_kwargs': kwargs
         })
 
         self.proc.start()
