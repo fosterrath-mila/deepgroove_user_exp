@@ -56,6 +56,10 @@ def train_process(pipe, exp_kwargs):
         print('got request: ', req)
         sys.stdout.flush()
 
+        if req_type == 'ping':
+            pipe.send('pong')
+            continue
+
         if req_type == 'add_rating':
             print('got rating')
             sys.stdout.flush()
@@ -122,6 +126,20 @@ class WebExperiment():
         self.pipe.send(['close'])
         self.pipe.close()
         self.proc.join()
+
+    @property
+    def is_running(self):
+        """
+        Check if the training process is still running
+        """
+
+        try:
+            self.pipe.send(['ping'])
+            self.pipe.recv()
+        except IOError as e:
+            return False
+
+        return True
 
     def gen_clip(self, out_file_path):
         """

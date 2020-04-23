@@ -198,12 +198,14 @@ def trial():
     trial.
     """
 
-    print('TRIAL ROUTE')
-
+    trial_count = int(session['trial_count'])
     user_idx = int(session['user_idx'])
     experiment = experiments[user_idx]
 
-    trial_count = int(session['trial_count'])
+    # If the training process timed out
+    if not experiment.is_running:
+        print('Experiment timed out, logging out')
+        return redirect(url_for('logout'))
 
     # Depending if we are in the final evaluation or not...
     if session['state'] == 'phase1':
