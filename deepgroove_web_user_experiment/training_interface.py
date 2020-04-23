@@ -3,6 +3,7 @@ Interface code for WEB UI and training setup.
 """
 
 import sys
+import time
 from pathlib import Path
 from uuid import uuid4
 from multiprocessing import Process, Queue, Pipe
@@ -28,10 +29,15 @@ def train_process(pipe, exp_kwargs):
     # Latest clip generated during phase 1
     latest_clip = experiment.gen_clip_phase1()
 
-    # FIXME: we need some kind of a timeout
-    # at least stop training if we haven't received any ratings/requests in a while.
+    # Last time a message was received
+    last_msg = time.time()
 
     while True:
+        # If we haven't received any messages for 3 hours, stop the process
+        if time.time() - last_msg > 3 * 60 * 60:
+            print('Training process timed out')
+            return
+
         if not pipe.poll() and phase == 1:
             print('Training')
             experiment.train_incremental()
@@ -44,6 +50,8 @@ def train_process(pipe, exp_kwargs):
         req = pipe.recv()
         req_type = req[0]
         args = req[1:]
+
+        last_msg = time.time()
 
         print('got request: ', req)
         sys.stdout.flush()
