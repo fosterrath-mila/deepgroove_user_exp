@@ -33,8 +33,8 @@ def train_process(pipe, exp_kwargs):
     last_msg = time.time()
 
     while True:
-        # If we haven't received any messages for 3 hours, stop the process
-        if time.time() - last_msg > 3 * 60 * 60:
+        # If we haven't received any messages for 30 minutes, stop the process
+        if time.time() - last_msg > 30 * 60:
             print('Training process timed out')
             return
 
