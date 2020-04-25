@@ -57,7 +57,6 @@ def train_process(pipe, exp_kwargs):
         sys.stdout.flush()
 
         if req_type == 'ping':
-            pipe.send('pong')
             continue
 
         if req_type == 'add_rating':
@@ -65,7 +64,7 @@ def train_process(pipe, exp_kwargs):
             sys.stdout.flush()
 
             if phase is 1:
-                experiment.add_rating_phase1(args[0])
+                experiment.add_rating_phase1(args[0], args[1])
             else:
                 experiment.add_rating_phase2(args[0])
             continue
@@ -114,6 +113,7 @@ class WebExperiment():
 
         self.proc.start()
 
+        self.last_audio = None
         self.last_clip_id = None
 
     def __del__(self):
@@ -135,7 +135,6 @@ class WebExperiment():
 
         try:
             self.pipe.send(['ping'])
-            self.pipe.recv()
         except IOError as e:
             return False
 
@@ -158,6 +157,7 @@ class WebExperiment():
         APP.logger.debug("Placing audio data into file %s", out_file_path)
         sf.write(out_file_path, audio, 44100)
 
+        self.last_audio = audio
         self.last_clip_id = uuid4()
 
         return self.last_clip_id
@@ -168,7 +168,7 @@ class WebExperiment():
             raise KeyError('mismatched clip uuid')
 
         # Send the rating to the training process
-        self.pipe.send(['add_rating', rating])
+        self.pipe.send(['add_rating', rating, self.last_audio])
 
     def start_phase2(self):
         """
