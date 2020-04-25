@@ -1,7 +1,7 @@
 *.wav
 env36
 
-/deepgroove_web_user_experiment/data/
+/deepgroove_web_user_experiment/static/data/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
