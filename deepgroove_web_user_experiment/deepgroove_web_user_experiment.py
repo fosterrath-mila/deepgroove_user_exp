@@ -210,6 +210,10 @@ def trial():
     trial.
     """
 
+    if not 'user_idx' in session:
+        print('Cannot find user_idx, logging out')
+        return redirect(url_for('logout'))
+
     trial_count = int(session['trial_count'])
     user_idx = int(session['user_idx'])
     experiment = experiments[user_idx]
