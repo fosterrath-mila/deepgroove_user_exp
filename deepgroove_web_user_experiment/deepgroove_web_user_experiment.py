@@ -210,12 +210,17 @@ def trial():
     trial.
     """
 
+    # If not logged in
     if not 'user_idx' in session:
-        print('Cannot find user_idx, logging out')
         return redirect(url_for('logout'))
 
     trial_count = int(session['trial_count'])
     user_idx = int(session['user_idx'])
+
+    # If session outdated
+    if user_idx not in experiments:
+        return redirect(url_for('logout'))
+
     experiment = experiments[user_idx]
 
     # If the training process timed out
