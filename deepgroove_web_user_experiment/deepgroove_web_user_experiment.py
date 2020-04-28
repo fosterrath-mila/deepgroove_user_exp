@@ -9,19 +9,21 @@ from pathlib import Path
 from flask import render_template, request, session, redirect, url_for, g
 
 from .training_interface import WebExperiment, experiments
+from deepgroove.deepdrummer.analysis import analyze_phase_2
 from . import APP
 
+"""
 PHASE1_TRIALS = 100
 SAVE_INTERVAL = 50
 TRIALS_PER_MODEL = 25
 PHASE2_TRIALS = ((PHASE1_TRIALS // SAVE_INTERVAL) + 1) * TRIALS_PER_MODEL
-
 """
+
 PHASE1_TRIALS = 5
 SAVE_INTERVAL = 5
 TRIALS_PER_MODEL = 2
 PHASE2_TRIALS = ((PHASE1_TRIALS // SAVE_INTERVAL) + 1) * TRIALS_PER_MODEL
-"""
+
 
 def find_user(query_email):
     """
@@ -65,8 +67,10 @@ def get_save_path():
     # Find the next available subdirectory
     for i in range(10000):
         save_path = os.path.join(data_dir_path, str(i))
+        data_url = 'data/{}'.format(i)
+
         if not os.path.exists(save_path):
-            return save_path, i
+            return save_path, data_url
 
     raise IOError('could not generate save path')
 
@@ -166,7 +170,7 @@ def logout():
     return redirect(url_for('register'))
 
 
-def render_results(data, data_dir_idx):
+def render_results(data, data_path, data_url):
     """
     Render a page with the experiment results (for debugging only)
     """
@@ -185,12 +189,17 @@ def render_results(data, data_dir_idx):
 
     model_ratings = [model_ratings[c] for c in sorted(model_ratings.keys())]
 
-    json_url = url_for('static', filename='data/{}/data.json'.format(data_dir_idx))
+    hist_path = os.path.join(data_path, 'histogram.png')
+    hist_url = url_for('static', filename='{}/histogram.png'.format(data_url))
+    json_url = url_for('static', filename='{}/data.json'.format(data_url))
+
+    analyze_phase_2(data, hist_path)
 
     return render_template(
         'results.html',
         model_ratings=model_ratings,
-        json_url=json_url
+        json_url=json_url,
+        hist_url=hist_url
     )
 
 
@@ -265,8 +274,8 @@ def trial():
             return redirect(url_for("train_wait"))
 
         # Otherwise, the user is all done !
-        save_path, data_dir_idx = get_save_path()
-        data = experiment.save_data(save_path)
+        data_path, data_url = get_save_path()
+        data = experiment.save_data(data_path)
 
         # Delete the experiment object
         del experiments[user_idx]
@@ -274,7 +283,7 @@ def trial():
         session['state'] = 'finished'
         session.modified = True
 
-        return render_results(data, data_dir_idx)
+        return render_results(data, data_path, data_url)
         #return redirect(url_for('finished'))
 
     # Otherwise, present the user with a new trial.

@@ -10,5 +10,8 @@ twine==1.14.0
 numpy>=1.10.0
 soundfile>=0.10.0
 
+scipy
+matplotlib
+
 pytest==4.6.5
 pytest-runner==5.1
