@@ -11,12 +11,10 @@ from flask import render_template, request, session, redirect, url_for, g
 from .training_interface import WebExperiment, experiments
 from . import APP
 
-
 PHASE1_TRIALS = 100
 SAVE_INTERVAL = 50
 TRIALS_PER_MODEL = 25
 PHASE2_TRIALS = ((PHASE1_TRIALS // SAVE_INTERVAL) + 1) * TRIALS_PER_MODEL
-
 
 """
 PHASE1_TRIALS = 5
@@ -24,7 +22,6 @@ SAVE_INTERVAL = 5
 TRIALS_PER_MODEL = 2
 PHASE2_TRIALS = ((PHASE1_TRIALS // SAVE_INTERVAL) + 1) * TRIALS_PER_MODEL
 """
-
 
 def find_user(query_email):
     """
@@ -178,7 +175,7 @@ def render_results(data, data_dir_idx):
 
     model_ratings = {}
 
-    for model_count, rating in ratings:
+    for model_count, rating, _ in ratings:
         if model_count not in model_ratings:
             model_ratings[model_count] = [model_count, 0, 0]
 
