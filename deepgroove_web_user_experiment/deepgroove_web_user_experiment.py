@@ -12,18 +12,19 @@ from .training_interface import WebExperiment, experiments
 from deepgroove.deepdrummer.analysis import analyze_phase_2
 from . import APP
 
-"""
+
 PHASE1_TRIALS = 100
 SAVE_INTERVAL = 50
 TRIALS_PER_MODEL = 25
 PHASE2_TRIALS = ((PHASE1_TRIALS // SAVE_INTERVAL) + 1) * TRIALS_PER_MODEL
-"""
 
+
+"""
 PHASE1_TRIALS = 5
 SAVE_INTERVAL = 5
 TRIALS_PER_MODEL = 2
 PHASE2_TRIALS = ((PHASE1_TRIALS // SAVE_INTERVAL) + 1) * TRIALS_PER_MODEL
-
+"""
 
 def find_user(query_email):
     """
