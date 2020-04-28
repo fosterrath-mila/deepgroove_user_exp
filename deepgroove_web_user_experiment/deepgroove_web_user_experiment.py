@@ -17,12 +17,14 @@ SAVE_INTERVAL = 50
 TRIALS_PER_MODEL = 25
 PHASE2_TRIALS = ((PHASE1_TRIALS // SAVE_INTERVAL) + 1) * TRIALS_PER_MODEL
 
+
 """
-PHASE1_TRIALS = 10
-SAVE_INTERVAL = 10
+PHASE1_TRIALS = 5
+SAVE_INTERVAL = 5
 TRIALS_PER_MODEL = 2
 PHASE2_TRIALS = ((PHASE1_TRIALS // SAVE_INTERVAL) + 1) * TRIALS_PER_MODEL
 """
+
 
 def find_user(query_email):
     """
@@ -210,12 +212,17 @@ def trial():
     trial.
     """
 
+    # If not logged in
     if not 'user_idx' in session:
-        print('Cannot find user_idx, logging out')
         return redirect(url_for('logout'))
 
     trial_count = int(session['trial_count'])
     user_idx = int(session['user_idx'])
+
+    # If session outdated
+    if user_idx not in experiments:
+        return redirect(url_for('logout'))
+
     experiment = experiments[user_idx]
 
     # If the training process timed out
