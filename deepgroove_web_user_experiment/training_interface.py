@@ -15,22 +15,33 @@ from . import APP
 # Map of user indices to experiment objects
 experiments = {}
 
-def train_process(pipe, queue, exp_kwargs):
+def train_process(pipe, exp_kwargs):
     """
     Training process. Communicates through a bidirectional pipe
-    to receive commands and a queue to send audio clips.
     """
 
     # Create the experiment object
     experiment = Experiment(**exp_kwargs)
 
+    # Keep track of the current phase
+    phase = 1
+
+    # Latest clip generated during phase 1
+    latest_clip = experiment.gen_clip_phase1()
+
+    # Last time a message was received
+    last_msg = time.time()
+
     while True:
-        # If no incoming request and the queue is not full
-        if experiment.phase == 1 and not pipe.poll() and not queue.full():
+        # If we haven't received any messages for 30 minutes, stop the process
+        if time.time() - last_msg > 30 * 60:
+            print('Training process timed out')
+            return
+
+        if not pipe.poll() and phase == 1:
             print('Training')
             experiment.train_incremental()
-            clip = experiment.gen_clip_phase1()
-            queue.put(clip)
+            latest_clip = experiment.gen_clip_phase1()
             continue
 
         print('Receiving message')
@@ -52,20 +63,26 @@ def train_process(pipe, queue, exp_kwargs):
             print('got rating')
             sys.stdout.flush()
 
-            if experiment.phase == 1:
+            if phase is 1:
                 experiment.add_rating_phase1(args[0], args[1])
             else:
                 experiment.add_rating_phase2(args[0])
             continue
 
         if req_type == 'gen_clip':
-            assert experiment.phase == 2
-            clip = experiment.gen_clip_phase2()
-            pipe.send(clip)
+            if phase is 1:
+                print('sending clip')
+                pipe.send(latest_clip)
+                print('clip sent')
+            else:
+                clip = experiment.gen_clip_phase2()
+                pipe.send(clip)
+            continue
 
         if req_type == 'start_phase2':
             print('received start of phase 2')
             experiment.start_phase2()
+            phase = 2
             continue
 
         if req_type == 'save_data':
@@ -86,15 +103,11 @@ class WebExperiment():
     """
 
     def __init__(self, **kwargs):
-        self.phase = 1
 
         self.pipe, pipe_child = Pipe()
 
-        self.queue = Queue(maxsize=20)
-
         self.proc = Process(target=train_process, kwargs={
             'pipe': pipe_child,
-            'queue': self.queue,
             'exp_kwargs': kwargs
         })
 
@@ -136,15 +149,9 @@ class WebExperiment():
         :rtype: str
         """
 
-        if self.phase == 1:
-            # Get the latest generated clip
-            audio = self.queue.get()
-            while not self.queue.empty():
-                audio = self.queue.get()
-        else:
-            # Generate an audio clip
-            self.pipe.send(['gen_clip'])
-            audio = self.pipe.recv()
+        # Generate an audio clip
+        self.pipe.send(['gen_clip'])
+        audio = self.pipe.recv()
 
         out_file_path = Path(out_file_path)
         APP.logger.debug("Placing audio data into file %s", out_file_path)
@@ -169,7 +176,6 @@ class WebExperiment():
         """
 
         self.pipe.send(['start_phase2'])
-        self.phase = 2
 
     def save_data(self, out_path):
         """
