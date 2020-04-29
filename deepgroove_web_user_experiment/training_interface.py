@@ -89,7 +89,7 @@ def train_process(pipe, exp_kwargs):
             save_path = args[0]
             data = experiment.save_data(save_path)
             pipe.send(data)
-            break
+            continue
 
         if req_type == 'close':
             break
