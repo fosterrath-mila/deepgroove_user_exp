@@ -250,7 +250,7 @@ def trial():
 
     # Handle the users response (POSTing)
     if request.method == 'POST':
-        rating = request.form['rating']
+        rating = 'good' if request.form['rating'] == 'like' else 'bad'
         APP.logger.debug("Form is %s", request.form)
         clip_id = request.form['id']
         APP.logger.debug("user said %s of %s", rating, clip_id)
