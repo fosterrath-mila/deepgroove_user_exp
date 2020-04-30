@@ -6,6 +6,7 @@
         <script>
             window.onload = function ()
             {
+                let trial_text = document.getElementById("trial_text");
                 let btn_good = document.getElementById("btn_good");
                 let btn_bad = document.getElementById("btn_bad");
                 let audio = document.getElementById("audio");
@@ -37,6 +38,8 @@
                     // feedback when the next trial begins
                     btn_good.style.background = '#777';
                     btn_bad.style.background = '#777';
+                    trial_text.innerHTML = '... loading next trial ...'
+
                     audio.pause();
 
                     // Track that the form was submitted
@@ -46,7 +49,7 @@
                 btn_good.onclick = btnClicked;
                 btn_bad.onclick = btnClicked;
 
-                // Start playback when the space key is pressed
+                // Start playback when the spacebar is pressed
                 window.onkeydown = function (evt)
                 {
                     if (evt.key == ' ')
@@ -65,7 +68,7 @@
                 by clicking one of the two buttons labeled "good" or "bad".
             </p>
             <div align="center">
-                <p>Trial: {{ trial }}</p>
+                <p id="trial_text">Trial: {{ trial }}</p>
                 <audio id="audio" controls>
                     <source src="{{ clip_url }}" align="center" type="audio/wav">
                     Your browser does not support the audio element.
