@@ -17,13 +17,14 @@ PHASE1_TRIALS = 100
 SAVE_INTERVAL = 10
 TRIALS_PER_MODEL = 8
 PHASE2_TRIALS = ((PHASE1_TRIALS // SAVE_INTERVAL) + 1) * TRIALS_PER_MODEL
-
+PAUSE_TIME = 59
 
 """
 PHASE1_TRIALS = 5
 SAVE_INTERVAL = 5
 TRIALS_PER_MODEL = 2
 PHASE2_TRIALS = ((PHASE1_TRIALS // SAVE_INTERVAL) + 1) * TRIALS_PER_MODEL
+PAUSE_TIME = 18
 """
 
 def find_user(query_email):
@@ -272,7 +273,7 @@ def trial():
             session['state'] = 'phase2'
             session['trial_count'] = 0
             session.modified = True
-            return redirect(url_for("train_wait"))
+            return render_template('pause.html', pause_time=PAUSE_TIME)
 
         # Otherwise, the user is all done !
         data_path, data_url = get_save_path()
