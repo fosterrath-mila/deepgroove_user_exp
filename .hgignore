@@ -6,3 +6,4 @@ deepgroove_web_user_experiment.egg-info/*
 tags
 */__pycache__/*
 build/*
+deepgroove_web_user_experiment/data/*
