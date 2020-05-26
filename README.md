@@ -16,7 +16,7 @@ For example:
 ```
 # Install the web server in a virtual environment
 git clone https://github.com/fosterrath-mila/deepgroove_user_exp.git
-cd deepgroove_web_user_exp
+cd deepgroove_user_exp
 virtualenv -p python3.6 env36
 source env36/bin/activate
 pip3 install -e .
