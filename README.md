@@ -1,7 +1,7 @@
-Deepgroove WEB user experiment
-==============================
+DeepDrummer WEB user experiment
+===============================
 
-This is the code base for a WEB interface to conduct user experiments for the Mila DeepGroove project.
+This is the code base for a WEB interface to conduct user experiments for the Mila DeepDrummer project.
 
 Free software: BSD license
 
