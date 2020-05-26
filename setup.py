@@ -4,11 +4,8 @@
 
 from setuptools import setup, find_packages
 
-with open('README.rst') as readme_file:
+with open('README.md') as readme_file:
     README = readme_file.read()
-
-with open('HISTORY.rst') as history_file:
-    HISTORY = history_file.read()
 
 REQUIREMENTS = ['flask',
                 'soundfile']
@@ -42,7 +39,6 @@ setup(
     },
     install_requires=REQUIREMENTS,
     license="BSD license",
-    long_description=README + '\n\n' + HISTORY,
     include_package_data=True,
     keywords='deepgroove_web_user_experiment',
     name='deepgroove_web_user_experiment',
